@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:flutter_webview_pro/webview_flutter.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:permission_handler/permission_handler.dart';
-
+import 'package:url_launcher/url_launcher.dart';
 
 class Home extends StatefulWidget {
-  const Home({super.key});
+  const Home({Key? key}) : super(key: key);
 
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
-
   late bool isOnline;
 
   @override
@@ -24,18 +22,7 @@ class _HomeState extends State<Home> {
         isOnline = result != ConnectivityResult.none;
       });
     });
-
   }
-
-
-  Future<void> requestCameraPermission() async {
-    var status = await Permission.camera.status;
-    if (status.isDenied) {
-      await Permission.camera.request();
-    }
-  }
-
-
 
   Future<void> checkConnectivity() async {
     var connectivityResult = await Connectivity().checkConnectivity();
@@ -51,48 +38,63 @@ class _HomeState extends State<Home> {
         onWillPop: showExitDialog,
         child: SafeArea(
           child: isOnline
-              ? const WebView(
-            initialUrl: 'https://www.glamastay.co.uk/',
-            javascriptMode: JavascriptMode.unrestricted,
-          )
+              ? _buildWebView()
               : Center(
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 200),
-                child: Container(child: Image.asset('images/nointernet.png')),
-              )),
+            child: Container(
+              padding: const EdgeInsets.only(bottom: 200),
+              child: Image.asset('images/nointernet.png'),
+            ),
+          ),
         ),
       ),
     );
   }
 
-  Widget loading() {
-    return const Center(
-      child: CircularProgressIndicator(
-        valueColor: AlwaysStoppedAnimation(Colors.green),
-      ),
+  Widget _buildWebView() {
+    return WebView(
+      initialUrl: 'https://www.glamastay.co.uk/',
+      javascriptMode: JavascriptMode.unrestricted,
+      navigationDelegate: (NavigationRequest request) {
+        if (request.url.startsWith('mailto:')) {
+          _launchEmail(request.url);
+          return NavigationDecision.prevent;
+        }
+        return NavigationDecision.navigate;
+      },
     );
   }
 
   Future<bool> showExitDialog() async {
     return await showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Glamastay'),
-          content: const Text('Do you want to exit the app?'),
-          actions: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-              child: const Text('No'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop(true);
-              },
-              child: const Text('Yes'),
-            ),
-          ],
-        ));
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Glamastay'),
+        content: const Text('Do you want to exit the app?'),
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop(false);
+            },
+            child: const Text('No'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop(true);
+            },
+            child: const Text('Yes'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+Future<void> _launchEmail(String url) async {
+  try {
+    final Uri emailUri = Uri.parse(url);
+    final String emailAddress = emailUri.pathSegments.first;
+    await launch('mailto:$emailAddress');
+  } catch (e) {
+    print('Error launching email: $e');
   }
 }

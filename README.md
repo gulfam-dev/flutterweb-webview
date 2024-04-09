@@ -1,6 +1,6 @@
 # Flutter Webview
 
-FlutterWeb: Minimalist browsing companion. Enjoy distraction-free web access with smooth performance, in a sleek Flutter-powered app.
+FlutterWeb: Minimalist browsing companion. Enjoy distraction-free web access with smooth performance with the capability to upload files to the web, in a sleek Flutter-powered app.
 
 <img width="299" alt="Screenshot 2024-03-21 at 8 01 32 PM" src="https://github.com/gulfam-dev/web_viewclone/assets/146335824/88a1d663-6a70-4b74-b095-89812c959e09">
 <img width="305" alt="Screenshot 2024-03-21 at 8 00 26 PM" src="https://github.com/gulfam-dev/web_viewclone/assets/146335824/1153c2b7-d000-4602-babc-d6484f5b8fd3">
